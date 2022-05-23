@@ -15,7 +15,7 @@ const EventEmitter = require('events');
 // Initialize emitter
 class Emitter extends EventEmitter { }
 const myEmitter = new Emitter()
-myEmitter.on('log', (msg, fileName) => { logEvents(msg, fileName) })
+myEmitter.on('log', (msg, fileName) => logEvents(msg, fileName))
 
 
 async function serveFile(filePath, contentType, res) {
