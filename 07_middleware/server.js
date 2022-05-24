@@ -1,28 +1,70 @@
 const express = require('express')
 const path = require('path')
-
-/**
- * We are going to create a minimal web server using Express, instead of just vanilla Node like we did in module 5.
- * 
- * N.B. Paths are resolved from top to bottom. 
- * 
- * Also, Express takes care of setting the correct status code and content type.
- */
+const cors = require('cors')
+const { logger } = require('./middleware/logEvents');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const PORT = process.env.PORT || 3500;
 const app = express()
 
 /**
- * ROUTE HANDLERS:
+ * Middlewares are anything that runs between the request and the response; in a sense, route handlers are middlewares.
+ * There are 3 types of middleware:
+ *  - built-in middlewares
+ *  - custom middlewares
+ *  - third-party middlewares
  */
 
-// '/' will match any slash in the path. 
-// So we use a regex instead
-app.get('^/$|/index(.html)?', (req, res) => {
-    // accepts a path to the file, and the root for the path
-    res.sendFile("./views/index.html", { root: __dirname })
+/**
+ * Custom middleware logger
+ * 
+ */
+app.use(logger)
 
-    // alternative: use the same way as we used with vanilla Node
+/**
+ * cross origin request middleware, allows cross-origin requests. 
+ */
+const whiteList = ['https://www.yoursite.com/', "http://127.0.0.1:5500", "http://localhost:3500"]
+const corsOptions = {
+    origin: (origin, callback) => {
+        // !origin -> origin is falsey, local dev has undefined origin
+        if (whiteList.indexOf(origin) !== -1 || !origin) {
+            callback(null, true)
+        } else {
+            callback(new Error('not allowed by cors'))
+        }
+    },
+    optionsSuccessStatus: 200
+}
+app.use(cors(corsOptions))
+
+
+/**
+ * Middleware to handle URLEncoded data i.e. content-type: "application/x-www-form-urlencoded".
+ * app is the server instance, the use method is used to add entries to the middleware stack. 
+ * You can invoce app.use for every middleware layer you wish to add. 
+ */
+app.use(express.urlencoded({ extended: false }))
+
+/**
+ * Another useful middleware layer is the one that handles json 
+ */
+app.use(express.json())
+
+/**
+ * And one for static files.
+ * express.static tries to find the file __dirname + public + /css/style.css
+ * 
+ * So when I request /css/style.css, express serves __dirname/public/css/style.css
+ */
+app.use(express.static(path.join(__dirname, '/public')))
+
+
+
+/************************************************************************************************ */
+
+app.get('^/$|/index(.html)?', (req, res) => {
+    res.sendFile("./views/index.html", { root: __dirname })
     res.sendFile(path.join(__dirname, 'views/index.html'))
 })
 
@@ -31,17 +73,13 @@ app.get('/new-page(.html)?', (req, res) => {
 })
 
 app.get('/old-page(.html)?', (req, res) => {
-    res.redirect(301, '/new-page.html') // defaults to 302, but we want a 301, so we specify it.
+    res.redirect(301, '/new-page.html')
 })
 
 app.get('hello(.html)?', (req, res, next) => {
     console.log('attemted to load hello.html')
-    next(); // moves to the next route handler
+    next();
 })
-
-/**
- * ROUTE HANDLER CHAINING. They work pretty much like middlewares.
- */
 
 const one = (req, res, next) => {
     console.log('one')
@@ -58,17 +96,26 @@ const three = (req, res, next) => {
     res.send('finished!')
 }
 
-// Will trigger function one, two and three in that order.
 app.get('/chain(.html)?', [one, two, three])
 
-/**
- * CUSTOM 404 FALLBACK (route handlers are cascading, so it has to be the last one)
- */
+app.all('*', (req, res) => {
+    res.status(404);
 
-// no previous matches, fallback to custom 404.
-app.get('/*', (req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'))
+    if (req.accepts('html')) {
+        res.sendFile(path.join(__dirname, 'views', '404.html'))
+    }
+    else if (req.accepts('json')) {
+        res.json({ error: "404 not found" })
+    }
+    else {
+        res.type("txt").send("404 not found")
+    }
 })
 
+/**
+ *  Error handling
+ */
+app.use(errorHandler)
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
