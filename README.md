@@ -7,6 +7,6 @@ The server will handle:
 - routing
 - authentication with JWT Auth
 - user roles 
-- APIs following a model-view-controller pattern
+- REST APIs following a model-view-controller pattern
 - connection to a MongoDB database 
 - async CRUD operations
