@@ -19,8 +19,9 @@ app.use(express.static(path.join(__dirname, '/public')))
 
 // register routes
 app.use('/', require('./routes/root'))
-app.use('/employees', require('./routes/api/employees'))
 app.use('/register', require('./routes/register'))
+app.use('/auth', require('./routes/auth'))
+app.use('/employees', require('./routes/api/employees'))
 
 // 404 fallback
 app.all('*', (req, res) => {
