@@ -111,3 +111,12 @@
 20220526	09:30:24	50454e20-495b-4d1c-a56b-31ab0fbfce96	GET	undefined	/employees
 20220526	09:30:42	eea33a58-b6e7-4e5a-b487-64d8a3736a7f	POST	undefined	/employees
 20220526	09:30:47	1b14bf0f-d480-407b-8bf3-a6cf356b6b29	GET	undefined	/employees
+20220526	11:41:43	2b944321-8435-484e-8d2e-55cb6b0a2aaa	GET	undefined	/register
+20220526	11:41:43	e6aa8685-52f1-44c9-a411-43147fc05e2d	GET	undefined	/favicon.ico
+20220526	11:46:04	a439aac0-6e57-4b83-b04e-9b47237a536c	POST	undefined	/register
+20220526	11:46:24	2f3d881f-cbe4-4f03-a3ec-9e93708e352e	POST	undefined	/register
+20220526	11:47:27	eb7c5619-d6a3-494a-96ed-c32146d28b0c	POST	undefined	/register
+20220526	11:47:43	473ac149-ba7a-4f35-9d20-cc44797a330c	POST	undefined	/register
+20220526	11:49:49	7797e0c1-c3d4-40ef-a6bb-8a27d85576ad	POST	undefined	/register
+20220526	11:49:55	ff738714-0ae0-48ce-b5f5-9c91b31c79f9	POST	undefined	/register
+20220526	11:49:57	0cadbd3e-0de1-4ac9-ae15-d7f6cc3fd023	POST	undefined	/register
