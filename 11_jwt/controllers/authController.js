@@ -5,6 +5,14 @@ const usersDB = {
 
 const bcrypt = require('bcrypt');
 
+/**
+ * Deps for JWT
+ */
+const jwt = require('jsonwebtoken');
+require('dotenv').config()
+const fsPromises = require('fs').promises
+const path = require('path')
+
 const handleLogin = async (req, res) => {
     const { user, pwd } = req.body;
     if (!user || !pwd) { return res.status(400).json({ 'message': 'Username and password are both required' }) }
@@ -13,14 +21,42 @@ const handleLogin = async (req, res) => {
 
     if (!foundUser) { return res.sendStatus(401) }
 
-    // user found, evaluate password
     const match = await bcrypt.compare(pwd, foundUser.password)
 
     if (match) {
         /**
-         * This is where we would normally create JWTs
+         * JWT (access and refresh tokens)
          */
-        res.json({ 'message': `User ${user} is logged in` })
+        const accessToken = jwt.sign(
+            { username: foundUser.username },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '30s' }
+        )
+
+        const refreshToken = jwt.sign(
+            { username: foundUser.username },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '1d' }
+        )
+
+        /**
+         * Save refresh token in the db with current user.
+         */
+        const otherUsers = usersDB.users.filter(u => u.username !== foundUser.username)
+        const currentUser = { ...foundUser, refreshToken }
+        usersDB.setUsers([...otherUsers, currentUser])
+
+        await fsPromises.writeFile(
+            path.join(__dirname, "..", "models", "users.json"),
+            JSON.stringify(usersDB.users)
+        )
+
+        /**
+         * We send the refresh token as a cookie that is not accessible via JS, with a 24h lifespan.
+         * The accessToken will be sent to the frontend developer, who should store it in the application state
+         */
+        res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
+        res.json({ accessToken })
     } else {
         res.sendStatus(400)
     }
