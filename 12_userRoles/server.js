@@ -6,40 +6,11 @@ const { logger } = require('./middleware/logEvents');
 const { errorHandler } = require('./middleware/errorHandler');
 
 /**
- * JWT = JSON Web Tokens, a form of user identification issued after initial user authentication.
- * Once the client is authenticated, our backend will issue the client:
- * - 1 access token
- * - 1 refresh token
+ * Little distinguo between 2 similar terms:
+ * - AUTHENTICATION => process of verifying who someone in.
+ * - AUTHORIZATION => process of verifying what specific resources that user has access to.
  * 
- * The access token is given a short life (5/15m).
- * The reference token is given a longer duration (several hours, even days sometimes)
- * 
- * After this duration, the tokens will expire. Tokens that live too long might expose you to XSS/CSRF.
- * 
- * Our API will send and receive tokens as JSON data. Frontend clients apps should store access tokens IN MEMORY,
- * so they will be automatically lost when the app is closed. They should NOT be stored in localStorage or cookies.
- * > If you can store it somewhere with JS, then malicious code can retrieve it with JS.
- * > By "in memory", I mean the current application state.
- * 
- * Refresh token is issued in an HttpOnly cookie. This type of cookie is NOT accessible via JS and must have
- * an expiration date.
- * 
- * [ACCESS TOKEN FLOW]
- * - Access token is issued to the user at authentication time
- * - Client uses the access token to access our protected APIs, until the token expires
- * - On each request, the token is verified with a middleware
- * - When the token expires, the user application will send a request to the refresh endpoint with a refresh token
- *   to get a new access token 
- * 
- * [REFRESH TOKEN FLOW]
- * - Refresh token is issued to the user at authentication time
- * - Client uses the refresh token to request a new access token when his previous token expires
- * - Our backend will verify the refresh token and cross-verify the token with our database
- * - Storing refresh tokens in the db allows us to terminate them early if the user decides to log out
- * - Refresh tokens, too, must have an expiration date
- * 
- * Keys are generate by opening node in the terminal and using the crypto core package: 
- * require('crypto').randomBytes(64).toString('hex')
+ * Login takes care of AUTHENTICATION, then the server uses JWT tokens to take care of AUTHORIZATION.
  */
 const verifyJwt = require("./middleware/verifyJwt")
 const cookieParser = require("cookie-parser");

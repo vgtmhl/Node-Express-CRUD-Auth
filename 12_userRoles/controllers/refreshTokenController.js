@@ -24,9 +24,16 @@ const handleRefreshToken = (req, res) => {
             return res.sendStatus(403)
         }
 
+        //
+        const roles = Object.values(foundUser.roles)
+
         // access token is verified, I can proceed with creating a new access token for the user
-        const accessToken = jwt.sign(
-            { "username": decoded.username },
+        const accessToken = jwt.sign({
+            "UserInfo": {
+                "username": decoded.username,
+                "roles": roles
+            }
+        },
             process.env.ACCESS_TOKEN_SECRET,
             { "expiresIn": "30s" }
         )
