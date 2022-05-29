@@ -3,7 +3,6 @@ const usersDB = {
     setUsers: function (data) { this.users = data }
 }
 
-
 /**
  * Deps for JWT
  */

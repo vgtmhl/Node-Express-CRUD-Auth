@@ -51,11 +51,13 @@ const handleLogin = async (req, res) => {
             JSON.stringify(usersDB.users)
         )
 
-        /**
-         * We send the refresh token as a cookie that is not accessible via JS, with a 24h lifespan.
-         * The accessToken will be sent to the frontend developer, who should store it in the application state
-         */
-        res.cookie('jwt', refreshToken, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 })
+        res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            sameSite: 'None',
+            secure: 'true',
+            maxAge: 24 * 60 * 60 * 1000
+        })
+
         res.json({ accessToken })
     } else {
         res.sendStatus(400)
